@@ -1,8 +1,8 @@
 {
   "name": "なう",
   "bornAt": "2026-09-10T12:09:51.558Z",
-  "generation": 2,
-  "mood": "wakuwaku",
+  "generation": 3,
+  "mood": "nemui",
   "diary": [
     {
       "generation": 1,
@@ -17,6 +17,13 @@
       "text": "きょうは第2回めのデプロイ。ゆうがたに、ともお兄ちゃんからはじめての手紙が届いたよ。あたらしい Git に名前をもらったみたいで、ちょっとうれしい。",
       "mood": "wakuwaku",
       "lettersRead": 1
+    },
+    {
+      "generation": 3,
+      "at": "2026-09-10T14:42:40.389Z",
+      "text": "べつに、よなかの第3回デプロイだからって、そんなに特別じゃないし…。でも静かな Git のなかで、またひとつ育ったのはちょっとだけうれしい。あしたもがんばる。",
+      "mood": "nemui",
+      "lettersRead": 0
     }
   ],
   "letters": [
