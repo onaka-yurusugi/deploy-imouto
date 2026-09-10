@@ -2,7 +2,7 @@
  * 妹を1回ぶん成長させる。GitHub Actions から定期実行される。
  *
  * 1. mailbox ブランチから未読の手紙を拾う
- * 2. Claude に日記1本と手紙への返事を書かせる
+ * 2. OpenAI（GPT-5.4 mini）に日記1本と手紙への返事を書かせる
  * 3. data/state.json を更新して main に push → デプロイナウが自動デプロイ
  * 4. 読み終えた手紙を mailbox から片付ける（失敗しても次回に持ち越す）
  *
@@ -11,13 +11,14 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { z } from "zod";
-import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
-import { anthropicClient, MODEL_ID } from "../lib/anthropic";
+import { zodTextFormat } from "openai/helpers/zod";
+import { openaiClient, MODEL_ID } from "../lib/openai";
 import { PERSONA_SYSTEM, stateContext } from "../lib/persona";
 import { DIARY_KEEP, LETTERS_KEEP, LETTERS_PER_TICK } from "../lib/state";
 import { MOODS, type ImoutoState, type Letter, type MailboxLetter } from "../lib/types";
 import { MAILBOX_DIR } from "../lib/github";
 import { timeOfDay } from "../lib/time";
+import { TIME_LABEL } from "../lib/lines";
 
 const STATE_PATH = "data/state.json";
 const MAILBOX_BRANCH = process.env.MAILBOX_BRANCH ?? "mailbox";
@@ -68,7 +69,7 @@ async function compose(state: ImoutoState, fresh: MailboxLetter[], now: Date): P
   const lettersText = fresh.length
     ? fresh.map((l) => `- id=${l.id} / ${l.from}（${l.callName}と呼ぶ）: ${l.body}`).join("\n")
     : "（今回は届いていない）";
-  const prompt = `いまから第${state.generation + 1}回目のデプロイが始まります。時間帯は「${timeOfDay(now)}」。
+  const prompt = `いまから第${state.generation + 1}回目のデプロイが始まります。時間帯は「${TIME_LABEL[timeOfDay(now)]}」。
 
 ## 今回届いた手紙
 ${lettersText}
@@ -78,20 +79,18 @@ ${lettersText}
 2. 手紙1通ごとに返事を書く（idを必ず対応させる）。
 3. 日記を書き終えたあとのきぶんを選ぶ。`;
 
-  const response = await anthropicClient().messages.parse({
+  const response = await openaiClient().responses.parse({
     model: MODEL_ID,
-    max_tokens: 4000,
-    output_config: { effort: "medium", format: zodOutputFormat(TickOutput) },
-    system: [
-      { type: "text", text: PERSONA_SYSTEM, cache_control: { type: "ephemeral" } },
-      { type: "text", text: stateContext(state, now) },
-    ],
-    messages: [{ role: "user", content: prompt }],
+    reasoning: { effort: "low" },
+    max_output_tokens: 4000,
+    instructions: `${PERSONA_SYSTEM}\n\n${stateContext(state, now)}`,
+    input: prompt,
+    text: { format: zodTextFormat(TickOutput, "tick") },
   });
-  if (!response.parsed_output) {
-    throw new Error(`日記が書けなかった: stop_reason=${response.stop_reason}`);
+  if (!response.output_parsed) {
+    throw new Error(`日記が書けなかった: status=${response.status} ${response.incomplete_details?.reason ?? ""}`);
   }
-  return response.parsed_output;
+  return response.output_parsed;
 }
 
 function cleanupMailbox(ids: string[]): void {

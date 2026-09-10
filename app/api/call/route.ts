@@ -1,6 +1,5 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { anthropicClient, MODEL_ID } from "@/lib/anthropic";
+import { openaiClient, MODEL_ID } from "@/lib/openai";
 import { PERSONA_SYSTEM, stateContext } from "@/lib/persona";
 import { imoutoState, CALL_LIMIT_SEC, CALL_SERVER_CUTOFF_MS } from "@/lib/state";
 import { CALL_NAMES } from "@/lib/types";
@@ -29,8 +28,8 @@ function sse(event: string, data: string): Uint8Array {
  * ストリーミングで返すので、切れた瞬間まで妹は喋り続ける。
  */
 export async function POST(req: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return new Response("電話線がつながっていません（ANTHROPIC_API_KEY 未設定）", { status: 503 });
+  if (!process.env.OPENAI_API_KEY) {
+    return new Response("電話線がつながっていません（OPENAI_API_KEY 未設定）", { status: 503 });
   }
   const ip = clientKey(req);
   if (!consume("call:global", envInt("CALL_DAILY_LIMIT", 200), DAY_MS)) {
@@ -49,25 +48,20 @@ export async function POST(req: Request) {
   const controller = new AbortController();
   const cutoff = setTimeout(() => controller.abort(), CALL_SERVER_CUTOFF_MS);
 
-  const history: Anthropic.MessageParam[] = messages.map((m) => ({ role: m.role, content: m.content }));
   const turnNote = `## この通話について
 - 相手の呼び方: ${callName}
 - 電話は${CALL_LIMIT_SEC}秒で自動的に切れる。残り約${remaining}秒。
 - 残りが15秒を切っていたら、名残惜しそうに短く切り上げる。
 - 返事は1〜3文。電話なので声に出して読める長さで。`;
 
-  const stream = anthropicClient().beta.messages.stream(
+  const stream = await openaiClient().responses.create(
     {
       model: MODEL_ID,
-      max_tokens: 300,
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
-      output_config: { effort: "low" },
-      system: [
-        { type: "text", text: PERSONA_SYSTEM, cache_control: { type: "ephemeral" } },
-        { type: "text", text: `${stateContext(imoutoState, new Date())}\n\n${turnNote}` },
-      ],
-      messages: history,
+      reasoning: { effort: "low" },
+      max_output_tokens: 300,
+      instructions: `${PERSONA_SYSTEM}\n\n${stateContext(imoutoState, new Date())}\n\n${turnNote}`,
+      input: messages.map((m) => ({ role: m.role, content: m.content })),
+      stream: true,
     },
     { signal: controller.signal },
   );
@@ -75,13 +69,15 @@ export async function POST(req: Request) {
   const body = new ReadableStream<Uint8Array>({
     async start(sink) {
       try {
+        let status = "completed";
         for await (const event of stream) {
-          if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-            sink.enqueue(sse("text", event.delta.text));
+          if (event.type === "response.output_text.delta") {
+            sink.enqueue(sse("text", event.delta));
+          } else if (event.type === "response.completed" || event.type === "response.incomplete") {
+            status = event.response.status ?? status;
           }
         }
-        const final = await stream.finalMessage();
-        sink.enqueue(sse("done", final.stop_reason ?? "end_turn"));
+        sink.enqueue(sse("done", status));
       } catch (error) {
         if (controller.signal.aborted) {
           sink.enqueue(sse("cut", "ぷつっ"));

@@ -55,7 +55,7 @@
                  │  /diary     静的                       │
                  │  /call      静的 + CallClient          │
                  │  /api/letters POST → GitHub Contents API（mailbox ブランチ）
-                 │  /api/call    POST → Claude API ストリーミング（SSE、50秒 abort）
+                 │  /api/call    POST → OpenAI API ストリーミング（SSE、50秒 abort）
                  └──────────────┬───────────────────┘
                                 │ GitHub 連携（main への push で自動デプロイ）
                  ┌──────────────▼───────────────────┐
@@ -67,7 +67,7 @@
                  ┌──────────────▼───────────────────┐
                  │ GitHub Actions: scripts/tick.ts     │
                  │  1. mailbox から未読を読む（最大10通） │
-                 │  2. Claude（structured output）で日記1本 + 返事
+                 │  2. OpenAI（structured output）で日記1本 + 返事
                  │  3. state.json 更新 → main に push → デプロイ
                  │  4. 読んだ手紙を mailbox から削除      │
                  └──────────────────────────────────┘
@@ -102,15 +102,15 @@ type MailboxLetter = { id; at; from; callName; body }; // mailbox ブランチ�
 
 1. `CallClient` が「電話をかける」でタイマー開始（60 秒）
 2. 各発話ごとに `POST /api/call { callName, elapsedSec, messages }`
-3. サーバーはシステムプロンプトに残り秒数を入れて Claude にストリーミング要求。50 秒で `AbortController.abort()`
+3. サーバーはシステムプロンプトに残り秒数を入れて OpenAI にストリーミング要求。50 秒で `AbortController.abort()`
 4. レスポンスは SSE（`event: text | done | cut | error`）
 5. クライアント 60 秒でも切断。切断後は「もう一回かける」
 
 コスト制御: 全体 1 日 200 通話、IP ごと 1 日 20 通話（メモリ内カウンタ、再起動でリセット）。`max_tokens: 300`、`effort: "low"`。
 
-### 3.4 LLM（Claude API）
+### 3.4 LLM（OpenAI API）
 
-- モデル: `claude-opus-5`（`lib/anthropic.ts` の `MODEL_ID`）
+- モデル: `gpt-5.4-mini`（`lib/openai.ts` の `MODEL_ID`）
 - tick: `client.messages.parse` + `zodOutputFormat` で `{ diary, mood, replies[] }` を構造化出力
 - 通話: `client.beta.messages.stream` + `fallbacks: "default"`（拒否時のサーバー側フォールバック）
 - システムプロンプトは `lib/persona.ts` の固定文（`cache_control` 付き）+ 可変の状態文
@@ -145,12 +145,12 @@ type MailboxLetter = { id; at; from; callName; body }; // mailbox ブランチ�
 
 | 場所 | 変数 | 用途 |
 |---|---|---|
-| デプロイナウ | `ANTHROPIC_API_KEY` | 通話 |
+| デプロイナウ | `OPENAI_API_KEY` | 通話 |
 | デプロイナウ | `GITHUB_TOKEN` | mailbox への投函（fine-grained PAT、Contents: Read and write、対象リポジトリのみ） |
 | デプロイナウ | `GITHUB_REPO` | `owner/repo` |
 | デプロイナウ | `MAILBOX_BRANCH` | 省略時 `mailbox` |
 | デプロイナウ | `CALL_DAILY_LIMIT` / `CALL_PER_IP_DAILY_LIMIT` / `LETTER_HOURLY_LIMIT` | 任意 |
-| GitHub Secrets | `ANTHROPIC_API_KEY` | tick |
+| GitHub Secrets | `OPENAI_API_KEY` | tick |
 
 合計 4KB 以内に収める。
 
