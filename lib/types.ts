@@ -41,3 +41,26 @@ export function isMood(value: string): value is Mood {
 export function isCallName(value: string): value is CallName {
   return (CALL_NAMES as readonly string[]).includes(value);
 }
+
+/** 立ち絵と話し方のモード。きぶんから決まる。 */
+export const MODES = ["tsundere", "deredere", "coodere"] as const;
+export type ImoutoMode = (typeof MODES)[number];
+
+export function isMode(value: string): value is ImoutoMode {
+  return (MODES as readonly string[]).includes(value);
+}
+
+export function moodToMode(mood: Mood): ImoutoMode {
+  // 基本はツンデレ。手紙などでにこにこのときだけデレる。眠いときだけクール。
+  switch (mood) {
+    case "nikoniko":
+      return "deredere";
+    case "nemui":
+      return "coodere";
+    case "genki":
+    case "wakuwaku":
+    case "sune":
+    case "sabishii":
+      return "tsundere";
+  }
+}

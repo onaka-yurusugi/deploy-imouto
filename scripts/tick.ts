@@ -13,9 +13,9 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { z } from "zod";
 import { zodTextFormat } from "openai/helpers/zod";
 import { openaiClient, MODEL_ID } from "../lib/openai";
-import { PERSONA_SYSTEM, stateContext } from "../lib/persona";
+import { PERSONA_SYSTEM, modeContext, stateContext } from "../lib/persona";
 import { DIARY_KEEP, LETTERS_KEEP, LETTERS_PER_TICK } from "../lib/state";
-import { MOODS, type ImoutoState, type Letter, type MailboxLetter } from "../lib/types";
+import { MOODS, moodToMode, type ImoutoState, type Letter, type MailboxLetter } from "../lib/types";
 import { MAILBOX_DIR } from "../lib/github";
 import { timeOfDay } from "../lib/time";
 import { TIME_LABEL } from "../lib/lines";
@@ -83,7 +83,7 @@ ${lettersText}
     model: MODEL_ID,
     reasoning: { effort: "low" },
     max_output_tokens: 4000,
-    instructions: `${PERSONA_SYSTEM}\n\n${stateContext(state, now)}`,
+    instructions: `${PERSONA_SYSTEM}\n\n${modeContext(moodToMode(state.mood))}\n\n${stateContext(state, now)}`,
     input: prompt,
     text: { format: zodTextFormat(TickOutput, "tick") },
   });

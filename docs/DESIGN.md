@@ -118,9 +118,15 @@ type MailboxLetter = { id; at; from; callName; body }; // mailbox ブランチ�
 
 ### 3.5 時間帯とおやすみモード
 
-- JST の時間帯（朝 5-10 / 昼 10-17 / 夕 17-22 / 夜 22-5）で服とセリフが変わる
+- JST の時間帯（朝 5-10 / 昼 10-17 / 夕 17-22 / 夜 22-5）でセリフと配色が変わる
 - `app/layout.tsx` のインラインスクリプトが `<html data-time>` を描画前に書き込み、CSS 変数を切り替える
 - クライアントでは `hooks/useClock.ts`（`useSyncExternalStore`）で取得。サーバー描画は常に "day"
+
+### 3.6 モード（立ち絵と口調）
+
+- 人格の基本はツンデレ。`moodToMode` で `nikoniko` → デレデレ、`nemui` → クーデレ、それ以外 → ツンデレ
+- 立ち絵は `public/imouto/{tsundere,deredere,coodere}.webp`。`next/image` の `unoptimized` で配信（画像最適化は CPU を消費するため）
+- 通話ページでは訪問者がモードを選べる。tick はそのときのきぶんのモードで日記と返事を書く
 
 ## 4. 画面
 

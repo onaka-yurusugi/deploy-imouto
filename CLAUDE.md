@@ -18,7 +18,7 @@ OPENAI_API_KEY=... DRY_RUN=1 npx tsx scripts/tick.ts   # 妹を1回成長させ�
 - `lib/` 型・状態・時間帯・セリフ・人格プロンプト・GitHub/OpenAI クライアント・レート制限
 - `app/api/letters` 手紙 → GitHub mailbox ブランチ / `app/api/call` OpenAI SSE 通話（50 秒 abort）
 - `scripts/tick.ts` GitHub Actions から実行。日記と返事を生成して main に push
-- `components/ImoutoAvatar.tsx` SVG 立ち絵。きぶん × 時間帯
+- `components/ImoutoAvatar.tsx` 立ち絵画像（`unoptimized`。画像最適化は CPU を食うため）
 
 ## ルール
 
@@ -26,4 +26,5 @@ OPENAI_API_KEY=... DRY_RUN=1 npx tsx scripts/tick.ts   # 妹を1回成長させ�
 - route ファイルからは HTTP メソッド以外を export しない
 - 時間に依存する表示は `hooks/useClock.ts` を使う（effect 内 setState 禁止）
 - LLM モデル ID は `lib/openai.ts` の `MODEL_ID` のみ
-- 妹のセリフは絵文字・顔文字なし。健全な兄妹距離を守る（`lib/persona.ts`）
+- 妹のセリフは絵文字・顔文字なし。基本はツンデレ。健全な兄妹距離を守る（`lib/persona.ts`）
+- 立ち絵は `public/imouto/*.webp` の3枚（tsundere が既定、deredere は nikoniko のみ、coodere は nemui のみ）。`moodToMode` で決まる

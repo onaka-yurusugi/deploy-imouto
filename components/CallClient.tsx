@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ImoutoAvatar } from "./ImoutoAvatar";
 import { CALL_LIMIT_SEC } from "@/lib/state";
-import { useTimeOfDay } from "@/hooks/useClock";
-import { CALL_NAMES, type CallName, type Mood } from "@/lib/types";
+import { CALL_NAMES, MODES, moodToMode, type CallName, type ImoutoMode, type Mood } from "@/lib/types";
+import { MODE_LABEL } from "@/lib/lines";
 
 type Turn = { role: "user" | "assistant"; content: string };
 type Phase = "idle" | "calling" | "ended";
@@ -13,13 +13,13 @@ const OPENING: Turn = { role: "user", content: "（電話をかけた）" };
 
 /** 60秒通話。タイマーはクライアント、切断はサーバー（50秒）とクライアント（60秒）の二重。 */
 export function CallClient({ mood }: { mood: Mood }) {
+  const [mode, setMode] = useState<ImoutoMode>(moodToMode(mood));
   const [phase, setPhase] = useState<Phase>("idle");
   const [callName, setCallName] = useState<CallName>("お兄ちゃん");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState("");
   const [remaining, setRemaining] = useState(CALL_LIMIT_SEC);
   const [speaking, setSpeaking] = useState(false);
-  const time = useTimeOfDay();
   const startedAt = useRef<number>(0);
   const abortRef = useRef<AbortController | null>(null);
   const logRef = useRef<HTMLDivElement>(null);
@@ -55,7 +55,7 @@ export function CallClient({ mood }: { mood: Mood }) {
       const res = await fetch("/api/call", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ callName, elapsedSec, messages: history }),
+        body: JSON.stringify({ callName, mode, elapsedSec, messages: history }),
         signal: controller.signal,
       });
       if (!res.ok || !res.body) {
@@ -114,7 +114,7 @@ export function CallClient({ mood }: { mood: Mood }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-6 items-start">
       <div className="justify-self-center sm:justify-self-start">
-        <ImoutoAvatar mood={phase === "ended" ? "sabishii" : speaking ? "genki" : mood} time={time} size={200} className={speaking ? "breathe" : ""} />
+        <ImoutoAvatar mode={mode} size={200} className={speaking ? "breathe" : ""} />
         <p className="mt-2 text-center font-black text-3xl text-pink-deep tabular-nums" aria-live="polite">
           {phase === "idle" ? "60" : remaining}
           <span className="text-sm text-ink ml-1">秒</span>
@@ -133,6 +133,22 @@ export function CallClient({ mood }: { mood: Mood }) {
                 ))}
               </select>
             </label>
+            <fieldset className="flex flex-col gap-1 text-sm">
+              <legend>きょうのなう</legend>
+              <div className="flex flex-wrap gap-2">
+                {MODES.map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setMode(m)}
+                    className={m === mode ? "btn" : "btn btn-ghost"}
+                    aria-pressed={m === mode}
+                  >
+                    {MODE_LABEL[m]}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
             <button className="btn self-start" onClick={startCall}>
               電話をかける
             </button>

@@ -8,7 +8,7 @@
 - 画面: `/`（ヒーロー・日記・お手紙ポスト・体質）、`/diary`、`/call`
 - API: `/api/letters`（GitHub mailbox 投函）、`/api/call`（OpenAI SSE ストリーミング、50 秒 abort）
 - `scripts/tick.ts` と `.github/workflows/tick.yml`（20 分おきに日記と返事を生成して push）
-- 立ち絵は SVG（`components/ImoutoAvatar.tsx`）。きぶん 6 種 × 時間帯 4 種
+- 立ち絵は `public/imouto/` の画像 3 枚（ツンデレ既定・デレデレ・クーデレ）。きぶんから `moodToMode` で決まる
 - ローカルで API キー未設定のとき、両 API が 503 と日本語メッセージを返すことは確認済み
 
 ## 2026-09-10 夜の時点で完了したこと

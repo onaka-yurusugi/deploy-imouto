@@ -1,14 +1,15 @@
 import { z } from "zod";
 import { openaiClient, MODEL_ID } from "@/lib/openai";
-import { PERSONA_SYSTEM, stateContext } from "@/lib/persona";
+import { PERSONA_SYSTEM, modeContext, stateContext } from "@/lib/persona";
 import { imoutoState, CALL_LIMIT_SEC, CALL_SERVER_CUTOFF_MS } from "@/lib/state";
-import { CALL_NAMES } from "@/lib/types";
+import { CALL_NAMES, MODES, moodToMode } from "@/lib/types";
 import { clientKey, consume, envInt } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
 
 const CallInput = z.object({
   callName: z.enum(CALL_NAMES),
+  mode: z.enum(MODES).optional(),
   elapsedSec: z.number().min(0).max(CALL_LIMIT_SEC),
   messages: z
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().trim().min(1).max(400) }))
@@ -43,6 +44,7 @@ export async function POST(req: Request) {
     return new Response("聞き取れなかった…もう一回言って？", { status: 400 });
   }
   const { callName, elapsedSec, messages } = parsed.data;
+  const mode = parsed.data.mode ?? moodToMode(imoutoState.mood);
   const remaining = Math.max(0, CALL_LIMIT_SEC - elapsedSec);
 
   const controller = new AbortController();
@@ -59,7 +61,7 @@ export async function POST(req: Request) {
       model: MODEL_ID,
       reasoning: { effort: "low" },
       max_output_tokens: 300,
-      instructions: `${PERSONA_SYSTEM}\n\n${stateContext(imoutoState, new Date())}\n\n${turnNote}`,
+      instructions: `${PERSONA_SYSTEM}\n\n${modeContext(mode)}\n\n${stateContext(imoutoState, new Date())}\n\n${turnNote}`,
       input: messages.map((m) => ({ role: m.role, content: m.content })),
       stream: true,
     },

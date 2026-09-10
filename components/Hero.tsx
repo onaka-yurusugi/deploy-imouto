@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { ImoutoAvatar } from "./ImoutoAvatar";
-import { GREETINGS, MOOD_LABEL, TIME_LABEL, pick } from "@/lib/lines";
+import { GREETINGS, MODE_LABEL, MOOD_LABEL, TIME_LABEL, pick } from "@/lib/lines";
 import { useMinute, useTimeOfDay } from "@/hooks/useClock";
-import type { ImoutoState } from "@/lib/types";
+import { moodToMode, type ImoutoState } from "@/lib/types";
 
 type Props = { state: ImoutoState };
 
@@ -19,7 +19,7 @@ export function Hero({ state }: Props) {
   return (
     <section className="grid grid-cols-1 sm:grid-cols-[240px_1fr] gap-6 sm:gap-8 items-start pt-6">
       <div className="breathe justify-self-center sm:justify-self-start">
-        <ImoutoAvatar mood={state.mood} time={time} size={240} />
+        <ImoutoAvatar mode={moodToMode(state.mood)} size={240} priority />
       </div>
       <div className="flex flex-col gap-5">
         <div className="bubble px-6 py-5 text-lg font-bold leading-relaxed" aria-live="polite">
@@ -34,7 +34,9 @@ export function Hero({ state }: Props) {
         </div>
         <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
           <dt className="text-ink-soft">きぶん</dt>
-          <dd className="font-bold">{MOOD_LABEL[state.mood]}</dd>
+          <dd className="font-bold">
+            {MOOD_LABEL[state.mood]}（{MODE_LABEL[moodToMode(state.mood)]}）
+          </dd>
           <dt className="text-ink-soft">いまの時間帯</dt>
           <dd className="font-bold">{TIME_LABEL[time]}</dd>
         </dl>
