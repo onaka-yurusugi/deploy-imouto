@@ -13,30 +13,22 @@
 
 ## 2026-09-10 夜の時点で完了したこと
 
-- GitHub Secrets `OPENAI_API_KEY` 設定済み。fine-grained PAT 発行済み
-- デプロイナウにプロジェクト `nau-chan`（ID `01M25KEG9SJ83QDV6Q511PVBHS`）を作成。URL: https://nau-chan.lolipop-now.app
-- 環境変数 4 つ（OPENAI_API_KEY / GITHUB_TOKEN / GITHUB_REPO / MAILBOX_BRANCH）を登録済み
+- 公開中: https://nau-chan.lolipop-now.app （プロジェクト `nau-chan`、ID `01M25KEG9SJ83QDV6Q511PVBHS`）
+- GitHub Secrets `OPENAI_API_KEY`、fine-grained PAT、デプロイナウの環境変数 4 つ、すべて設定済み
 - `.lolipop/project.json` でカレントディレクトリをリンク済み（gitignore）
+- 本番で確認済み: 通話 API のストリーミング、手紙の投函 → tick が返事 → mailbox 片付け、の一周
+- tick を手動 2 回実行してなうは第 2 回デプロイ目。最初の手紙（とも）に返事済み
 
-## まだやっていないこと（順番どおりに進めると早い）
+## まだやっていないこと
 
-1. **GitHub リポジトリの設定**
-   - Settings → Secrets and variables → Actions → `OPENAI_API_KEY`
-   - fine-grained PAT を発行（Contents: Read and write、対象リポジトリのみ）→ デプロイナウ側の `GITHUB_TOKEN` に
-   - `mailbox` ブランチ（空の `mailbox/.gitkeep`）が無ければ作る
-2. **tick の動作確認**（API キーが必要。まだ一度も実行していない）
-   ```bash
-   OPENAI_API_KEY=... DRY_RUN=1 npx tsx scripts/tick.ts   # commit しない
-   ```
-   `data/state.json` に日記が 1 本入れば OK。structured output の形で落ちたら `TickOutput` と `messages.parse` の呼び方を直す
-3. **GitHub 連携**（ダッシュボードのみ。CLI では不可）
+1. **GitHub 連携**（ダッシュボードのみ。CLI では不可）
    https://deploy.lolipop.jp/projects/01M25KEG9SJ83QDV6Q511PVBHS → 設定タブ → GitHub 連携 → リポジトリ `onaka-yurusugi/deploy-imouto`、デプロイブランチ `main`。
-   連携までは `lolipop deploy` の手動デプロイで反映する
-4. **実機で制限を計測**（設計書 §2 の未記載項目）
-   - `/api/call` を 55 秒以上引き延ばして本当に 60 秒で切れるか
-   - `/tmp` への書き込み可否（書けるなら「なでなで」集計を FS に置ける）
-5. **Actions を有効化**して 20 分待ち、`generation` が 1 になるのを確認（なうが生まれる）
-6. コンテスト応募フォームに URL を送る（締切 2026-12-08）
+   連携するまでは tick が push しても本番に反映されない。手動なら `lolipop deploy`
+2. **cron の起動確認**: `gh run list --repo onaka-yurusugi/deploy-imouto` に `schedule` の行が出るか。新規リポジトリは最初の cron が遅れることがある
+3. **実機で制限を計測**（設計書 §2 の未記載項目）
+   - `/api/call` を 55 秒以上引き延ばして本当に 60 秒で切れるか（`max_output_tokens` を一時的に大きくして試す）
+   - `/tmp` への書き込み可否
+4. コンテスト応募フォームに URL を送る（締切 2026-12-08）
 
 ## ハマりそうなところ
 
