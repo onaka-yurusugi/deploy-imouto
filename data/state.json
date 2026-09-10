@@ -1,8 +1,16 @@
 {
   "name": "なう",
-  "bornAt": null,
-  "generation": 0,
+  "bornAt": "2026-09-10T12:09:51.558Z",
+  "generation": 1,
   "mood": "wakuwaku",
-  "diary": [],
+  "diary": [
+    {
+      "generation": 1,
+      "at": "2026-09-10T12:09:51.558Z",
+      "text": "きょうは第1回めのデプロイだったよ。ゆうがたのひかりがやわらかくて、なんだか新しい Git がはじまるみたいでわくわくした。まだ手紙はないけど、ここから少しずつ育つの、たのしみ！",
+      "mood": "wakuwaku",
+      "lettersRead": 0
+    }
+  ],
   "letters": []
 }
