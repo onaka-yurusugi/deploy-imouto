@@ -1,0 +1,32 @@
+name: 妹を成長させる
+
+on:
+  schedule:
+    # 20分おき = 1日72回。無料プランの「1日100ビルド」に手動デプロイぶんの余裕を残す
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: tick
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsx scripts/tick.ts
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          MAILBOX_BRANCH: mailbox

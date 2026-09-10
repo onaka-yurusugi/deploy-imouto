@@ -1,26 +1,193 @@
 @import "tailwindcss";
 
+/*
+  なうの部屋。昼はミルクピンク、22時〜5時は自動で「おやすみモード」になる。
+  時間帯は layout.tsx のインラインスクリプトが <html data-time> に書き込む。
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --milk: #fff6f9;
+  --paper: #ffffff;
+  --ink: #33243a;
+  --ink-soft: #7a6480;
+  --pink: #ff6fa5;
+  --pink-deep: #e0518f;
+  --pink-pale: #ffd9e6;
+  --mint: #5fcfc0;
+  --mint-pale: #d9f5f0;
+  --yolk: #ffd166;
+  --line: #f1d5e0;
+  --log-bg: #fff0f5;
+  --shadow: 0 10px 30px -18px rgba(224, 81, 143, 0.45);
+}
+
+:root[data-time="night"] {
+  --milk: #1f1b36;
+  --paper: #2a2447;
+  --ink: #f4ecff;
+  --ink-soft: #b8a9cf;
+  --pink: #ff8fbb;
+  --pink-deep: #ffb0cf;
+  --pink-pale: #4a3560;
+  --mint: #7fe0d2;
+  --mint-pale: #244a4a;
+  --yolk: #ffe08a;
+  --line: #3f3660;
+  --log-bg: #241f40;
+  --shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.6);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-milk: var(--milk);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-pink: var(--pink);
+  --color-pink-deep: var(--pink-deep);
+  --color-pink-pale: var(--pink-pale);
+  --color-mint: var(--mint);
+  --color-mint-pale: var(--mint-pale);
+  --color-yolk: var(--yolk);
+  --color-line: var(--line);
+  --color-log: var(--log-bg);
+  --font-maru: var(--font-zen-maru), "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+  --font-log: var(--font-mplus-code), ui-monospace, "SFMono-Regular", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: light;
+}
+html[data-time="night"] {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--milk);
+  color: var(--ink);
+  font-family: var(--font-maru);
+  line-height: 1.8;
+  transition: background-color 0.6s ease, color 0.6s ease;
+}
+
+.bubble {
+  position: relative;
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow);
+}
+.bubble::before {
+  content: "";
+  position: absolute;
+  left: -14px;
+  top: 28px;
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-right: 14px solid var(--line);
+}
+.bubble::after {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 30px;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 12px solid var(--paper);
+}
+@media (max-width: 640px) {
+  .bubble::before,
+  .bubble::after {
+    display: none;
+  }
+}
+
+.log-line {
+  font-family: var(--font-log);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  background: var(--pink);
+  color: #fff;
+  font-weight: 700;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+.btn:hover {
+  background: var(--pink-deep);
+  transform: translateY(-1px);
+}
+.btn:disabled {
+  opacity: 0.5;
+  transform: none;
+  cursor: not-allowed;
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--pink-deep);
+  border: 2px solid var(--pink-pale);
+}
+.btn-ghost:hover {
+  background: var(--pink-pale);
+  color: var(--ink);
+}
+
+.field {
+  width: 100%;
+  border: 2px solid var(--line);
+  border-radius: 1rem;
+  background: var(--paper);
+  padding: 0.7rem 1rem;
+  color: var(--ink);
+}
+.field:focus {
+  outline: 3px solid var(--pink-pale);
+  border-color: var(--pink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--pink);
+  outline-offset: 2px;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.breathe {
+  animation: breathe 3.2s ease-in-out infinite;
+}
+@keyframes blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+.blink {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: blink 5s infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .breathe,
+  .blink {
+    animation: none;
+  }
 }
