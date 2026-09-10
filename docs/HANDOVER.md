@@ -11,6 +11,13 @@
 - 立ち絵は SVG（`components/ImoutoAvatar.tsx`）。きぶん 6 種 × 時間帯 4 種
 - ローカルで API キー未設定のとき、両 API が 503 と日本語メッセージを返すことは確認済み
 
+## 2026-09-10 夜の時点で完了したこと
+
+- GitHub Secrets `OPENAI_API_KEY` 設定済み。fine-grained PAT 発行済み
+- デプロイナウにプロジェクト `nau-chan`（ID `01M25KEG9SJ83QDV6Q511PVBHS`）を作成。URL: https://nau-chan.lolipop-now.app
+- 環境変数 4 つ（OPENAI_API_KEY / GITHUB_TOKEN / GITHUB_REPO / MAILBOX_BRANCH）を登録済み
+- `.lolipop/project.json` でカレントディレクトリをリンク済み（gitignore）
+
 ## まだやっていないこと（順番どおりに進めると早い）
 
 1. **GitHub リポジトリの設定**
@@ -22,15 +29,9 @@
    OPENAI_API_KEY=... DRY_RUN=1 npx tsx scripts/tick.ts   # commit しない
    ```
    `data/state.json` に日記が 1 本入れば OK。structured output の形で落ちたら `TickOutput` と `messages.parse` の呼び方を直す
-3. **デプロイナウ初回デプロイ**
-   ```bash
-   lolipop login                     # ブラウザ認証（対話）
-   lolipop deploy --name nau --framework next
-   lolipop env create OPENAI_API_KEY ...
-   lolipop env create GITHUB_TOKEN ...
-   lolipop env create GITHUB_REPO onaka-yurusugi/deploy-imouto
-   ```
-   その後ダッシュボードで GitHub 連携（デプロイブランチ `main`）を有効化
+3. **GitHub 連携**（ダッシュボードのみ。CLI では不可）
+   https://deploy.lolipop.jp/projects/01M25KEG9SJ83QDV6Q511PVBHS → 設定タブ → GitHub 連携 → リポジトリ `onaka-yurusugi/deploy-imouto`、デプロイブランチ `main`。
+   連携までは `lolipop deploy` の手動デプロイで反映する
 4. **実機で制限を計測**（設計書 §2 の未記載項目）
    - `/api/call` を 55 秒以上引き延ばして本当に 60 秒で切れるか
    - `/tmp` への書き込み可否（書けるなら「なでなで」集計を FS に置ける）

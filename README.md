@@ -9,6 +9,10 @@
 
 設計は [docs/DESIGN.md](docs/DESIGN.md)、続きの作業は [docs/HANDOVER.md](docs/HANDOVER.md)。
 
+## 公開URL
+
+https://nau-chan.lolipop-now.app
+
 ## 開発
 
 ```bash
@@ -22,7 +26,7 @@ npm run build && npm run lint
 
 ```bash
 lolipop login
-lolipop deploy --name nau --framework next
+lolipop deploy --name nau-chan --framework next --domain nau-chan
 ```
 
 `next.config.ts` の `output: "standalone"` が必須です。

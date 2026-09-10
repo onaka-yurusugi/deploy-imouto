@@ -157,7 +157,7 @@ type MailboxLetter = { id; at; from; callName; body }; // mailbox ブランチ�
 ### デプロイ
 
 - GitHub 連携で `main` push → 自動デプロイ
-- 初回のみ CLI: `lolipop login` → `lolipop deploy --name nau --framework next`
+- 初回のみ CLI: `lolipop login` → `lolipop deploy --name nau-chan --framework next --domain nau-chan`
 
 ### ビルド回数の見積もり
 
