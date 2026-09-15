@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ImoutoAvatar } from "./ImoutoAvatar";
+import { Icon } from "./Icon";
 import { CALL_LIMIT_SEC } from "@/lib/state";
 import { CALL_NAMES, MODES, moodToMode, type CallName, type ImoutoMode, type Mood } from "@/lib/types";
 import { MODE_LABEL } from "@/lib/lines";
@@ -114,8 +115,8 @@ export function CallClient({ mood }: { mood: Mood }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-6 items-start">
       <div className="justify-self-center sm:justify-self-start">
-        <ImoutoAvatar mode={mode} size={200} className={speaking ? "breathe" : ""} />
-        <p className="mt-2 text-center font-black text-3xl text-pink-deep tabular-nums" aria-live="polite">
+        <ImoutoAvatar mode={mode} size={200} className={speaking ? "breathe" : ""} sparkles={phase === "calling"} />
+        <p className="mt-4 mx-auto w-fit card px-5 py-1.5 text-center font-black text-3xl text-pink-deep tabular-nums" aria-live="polite">
           {phase === "idle" ? "60" : remaining}
           <span className="text-sm text-ink ml-1">秒</span>
         </p>
@@ -150,6 +151,7 @@ export function CallClient({ mood }: { mood: Mood }) {
               </div>
             </fieldset>
             <button className="btn self-start" onClick={startCall}>
+              <Icon name="phone" size={16} />
               電話をかける
             </button>
           </>
@@ -157,7 +159,7 @@ export function CallClient({ mood }: { mood: Mood }) {
         {phase !== "idle" && (
           <div ref={logRef} className="bubble px-5 py-4 h-72 overflow-y-auto flex flex-col gap-3" aria-live="polite">
             {visibleTurns.map((t, i) => (
-              <p key={i} className={t.role === "user" ? "self-end rounded-2xl bg-pink-pale px-4 py-2 max-w-[85%]" : "max-w-[90%]"}>
+              <p key={i} className={t.role === "user" ? "self-end rounded-2xl rounded-br-sm bg-pink-pale px-4 py-2 max-w-[85%] wobble-in" : "self-start rounded-2xl rounded-bl-sm bg-peach-pale px-4 py-2 max-w-[90%] wobble-in"}>
                 {t.content || "…"}
               </p>
             ))}
@@ -184,6 +186,7 @@ export function CallClient({ mood }: { mood: Mood }) {
           <div className="flex flex-col gap-2">
             <p className="text-ink-soft">通話が切れました。無料プランの1リクエストは60秒までなので、これが仕様です。</p>
             <button className="btn self-start" onClick={startCall}>
+              <Icon name="phone" size={16} />
               もう一回かける
             </button>
           </div>

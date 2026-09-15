@@ -3,6 +3,7 @@ import Link from "next/link";
 import { M_PLUS_1_Code, Zen_Maru_Gothic } from "next/font/google";
 import "./globals.css";
 import { imoutoState } from "@/lib/state";
+import { Icon } from "@/components/Icon";
 
 const zenMaru = Zen_Maru_Gothic({
   weight: ["400", "500", "700", "900"],
@@ -34,20 +35,28 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col">
         <header className="mx-auto w-full max-w-3xl px-5 pt-6 pb-2 flex items-center justify-between">
-          <Link href="/" className="font-black text-xl tracking-wide text-pink-deep">
+          <Link href="/" className="inline-flex items-center gap-2 font-black text-xl tracking-wide text-pink-deep">
+            <span className="grid place-items-center w-8 h-8 rounded-full bg-pink text-white shadow-[var(--shadow-soft)] -rotate-6">
+              <Icon name="heart" size={16} />
+            </span>
             なう
           </Link>
-          <nav className="flex gap-5 text-sm font-bold text-ink-soft">
-            <Link href="/diary" className="hover:text-pink-deep">
+          <nav className="flex gap-1 text-sm">
+            <Link href="/diary" className="nav-link">
               成長日記
             </Link>
-            <Link href="/call" className="hover:text-pink-deep">
+            <Link href="/call" className="nav-link">
               電話する
             </Link>
           </nav>
         </header>
         <main className="mx-auto w-full max-w-3xl px-5 pb-16 flex-1">{children}</main>
-        <footer className="mx-auto w-full max-w-3xl px-5 py-8 text-xs text-ink-soft border-t border-line">
+        <footer className="mx-auto w-full max-w-3xl px-5 py-8 text-xs text-ink-soft">
+          <div className="flex items-center gap-3 mb-4 text-pink" aria-hidden="true">
+            <span className="flex-1 border-t-2 border-dashed border-line" />
+            <Icon name="heart" size={14} />
+            <span className="flex-1 border-t-2 border-dashed border-line" />
+          </div>
           <p>
             第{imoutoState.generation}回デプロイ目のなう。ロリポップ！デプロイナウの無料プランで暮らしています。
           </p>

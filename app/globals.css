@@ -5,35 +5,55 @@
   時間帯は layout.tsx のインラインスクリプトが <html data-time> に書き込む。
 */
 :root {
-  --milk: #fff6f9;
+  --milk: #fff4f7;
   --paper: #ffffff;
-  --ink: #33243a;
-  --ink-soft: #7a6480;
-  --pink: #ff6fa5;
-  --pink-deep: #e0518f;
-  --pink-pale: #ffd9e6;
+  --ink: #4a3140;
+  --ink-soft: #8a6f80;
+  --pink: #ff7fb0;
+  --pink-deep: #e85a97;
+  --pink-pale: #ffdbe8;
+  --peach: #ffc9b3;
+  --peach-pale: #fff0e8;
   --mint: #5fcfc0;
-  --mint-pale: #d9f5f0;
+  --mint-pale: #dcf6f1;
   --yolk: #ffd166;
-  --line: #f1d5e0;
+  --yolk-pale: #fff3cc;
+  --line: #f6d4e1;
   --log-bg: #fff0f5;
-  --shadow: 0 10px 30px -18px rgba(224, 81, 143, 0.45);
+  --dot: rgba(255, 127, 176, 0.14);
+  --glow-a: rgba(255, 201, 179, 0.55);
+  --glow-b: rgba(255, 219, 232, 0.7);
+  --btn-top: #ff7fb0;
+  --btn-bottom: #e85a97;
+  --btn-edge: #bf4478;
+  --shadow: 0 12px 28px -16px rgba(232, 90, 151, 0.4);
+  --shadow-soft: 0 6px 18px -10px rgba(232, 90, 151, 0.35);
 }
 
 :root[data-time="night"] {
-  --milk: #1f1b36;
-  --paper: #2a2447;
-  --ink: #f4ecff;
-  --ink-soft: #b8a9cf;
-  --pink: #ff8fbb;
-  --pink-deep: #ffb0cf;
-  --pink-pale: #4a3560;
+  --milk: #211c38;
+  --paper: #2c2650;
+  --ink: #f6eeff;
+  --ink-soft: #bdaed3;
+  --pink: #ff93c0;
+  --pink-deep: #ffb3d1;
+  --pink-pale: #4d3766;
+  --peach: #6a4a5c;
+  --peach-pale: #35294a;
   --mint: #7fe0d2;
   --mint-pale: #244a4a;
   --yolk: #ffe08a;
-  --line: #3f3660;
-  --log-bg: #241f40;
-  --shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.6);
+  --yolk-pale: #4a4030;
+  --line: #443b68;
+  --log-bg: #262042;
+  --dot: rgba(255, 147, 192, 0.1);
+  --glow-a: rgba(120, 90, 160, 0.4);
+  --glow-b: rgba(80, 60, 120, 0.5);
+  --btn-top: #ff7fb0;
+  --btn-bottom: #d94f8c;
+  --btn-edge: #9e3868;
+  --shadow: 0 12px 28px -16px rgba(0, 0, 0, 0.65);
+  --shadow-soft: 0 6px 18px -10px rgba(0, 0, 0, 0.5);
 }
 
 @theme inline {
@@ -44,9 +64,12 @@
   --color-pink: var(--pink);
   --color-pink-deep: var(--pink-deep);
   --color-pink-pale: var(--pink-pale);
+  --color-peach: var(--peach);
+  --color-peach-pale: var(--peach-pale);
   --color-mint: var(--mint);
   --color-mint-pale: var(--mint-pale);
   --color-yolk: var(--yolk);
+  --color-yolk-pale: var(--yolk-pale);
   --color-line: var(--line);
   --color-log: var(--log-bg);
   --font-maru: var(--font-zen-maru), "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
@@ -61,36 +84,87 @@ html[data-time="night"] {
 }
 
 body {
-  background: var(--milk);
+  position: relative;
+  background-color: var(--milk);
+  background-image: radial-gradient(var(--dot) 1.5px, transparent 1.6px);
+  background-size: 22px 22px;
   color: var(--ink);
   font-family: var(--font-maru);
   line-height: 1.8;
   transition: background-color 0.6s ease, color 0.6s ease;
 }
+/* 部屋の光。左上は桃色、右下はミルクピンクのにじみ */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38rem 26rem at -8% -10%, var(--glow-a), transparent 70%),
+    radial-gradient(34rem 24rem at 108% 6%, var(--glow-b), transparent 70%),
+    radial-gradient(30rem 20rem at 50% 110%, var(--glow-b), transparent 70%);
+}
+
+/* ---------- 見出し ---------- */
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+.heading-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.8rem;
+  background: var(--pink-pale);
+  color: var(--pink-deep);
+  transform: rotate(-8deg);
+  box-shadow: var(--shadow-soft);
+  flex: none;
+}
+
+/* ---------- カード類 ---------- */
+.card {
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 1.75rem;
+  box-shadow: var(--shadow-soft);
+}
+.card-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-lift:hover {
+  transform: translateY(-3px) rotate(-0.4deg);
+  box-shadow: var(--shadow);
+}
 
 .bubble {
   position: relative;
   background: var(--paper);
-  border: 2px solid var(--line);
-  border-radius: 1.5rem;
+  border: 3px solid var(--pink-pale);
+  border-radius: 1.75rem;
   box-shadow: var(--shadow);
 }
 .bubble::before {
   content: "";
   position: absolute;
-  left: -14px;
-  top: 28px;
+  left: -16px;
+  top: 30px;
   width: 0;
   height: 0;
   border-top: 12px solid transparent;
   border-bottom: 12px solid transparent;
-  border-right: 14px solid var(--line);
+  border-right: 16px solid var(--pink-pale);
 }
 .bubble::after {
   content: "";
   position: absolute;
   left: -10px;
-  top: 30px;
+  top: 32px;
   width: 0;
   height: 0;
   border-top: 10px solid transparent;
@@ -104,53 +178,131 @@ body {
   }
 }
 
+/* ---------- タグ・スタンプ ---------- */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.6;
+  background: var(--pink-pale);
+  color: var(--pink-deep);
+}
+.tag-mint {
+  background: var(--mint-pale);
+  color: var(--mint);
+}
+.tag-yolk {
+  background: var(--yolk-pale);
+  color: #b8860b;
+}
+:root[data-time="night"] .tag-yolk {
+  color: var(--yolk);
+}
+.tag-peach {
+  background: var(--peach-pale);
+  color: var(--pink-deep);
+}
+
+.stamp {
+  display: inline-grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 2px dashed var(--pink);
+  border-radius: 0.5rem;
+  color: var(--pink);
+  background: var(--paper);
+  transform: rotate(6deg);
+  flex: none;
+}
+
 .log-line {
   font-family: var(--font-log);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--ink-soft);
 }
 
+/* ---------- ボタン（ぷっくり） ---------- */
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.7rem 1.4rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 999px;
-  background: var(--pink);
+  background: linear-gradient(180deg, var(--btn-top) 0%, var(--btn-bottom) 100%);
   color: #fff;
-  font-weight: 700;
-  transition: transform 0.15s ease, background-color 0.15s ease;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 0 var(--btn-edge), var(--shadow-soft);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
 }
 .btn:hover {
-  background: var(--pink-deep);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 6px 0 var(--btn-edge), var(--shadow);
+}
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--btn-edge);
 }
 .btn:disabled {
   opacity: 0.5;
   transform: none;
+  filter: none;
   cursor: not-allowed;
+  box-shadow: 0 3px 0 var(--btn-edge);
 }
 .btn-ghost {
-  background: transparent;
+  background: var(--paper);
   color: var(--pink-deep);
-  border: 2px solid var(--pink-pale);
+  border: 2px dashed var(--pink);
+  box-shadow: 0 4px 0 var(--pink-pale);
 }
 .btn-ghost:hover {
   background: var(--pink-pale);
-  color: var(--ink);
+  color: var(--pink-deep);
+  filter: none;
+  box-shadow: 0 6px 0 var(--pink-pale);
+}
+.btn-ghost:active {
+  box-shadow: 0 1px 0 var(--pink-pale);
+}
+.btn-ghost:disabled {
+  box-shadow: 0 3px 0 var(--pink-pale);
 }
 
+.nav-link {
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.nav-link:hover {
+  background: var(--pink-pale);
+  color: var(--pink-deep);
+  transform: translateY(-1px);
+}
+
+/* ---------- 入力欄 ---------- */
 .field {
   width: 100%;
   border: 2px solid var(--line);
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   background: var(--paper);
-  padding: 0.7rem 1rem;
+  padding: 0.75rem 1.1rem;
   color: var(--ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .field:focus {
-  outline: 3px solid var(--pink-pale);
+  outline: none;
   border-color: var(--pink);
+  box-shadow: 0 0 0 4px var(--pink-pale);
 }
 
 :focus-visible {
@@ -158,17 +310,79 @@ body {
   outline-offset: 2px;
 }
 
+/* ---------- 立ち絵まわり ---------- */
+.avatar-frame {
+  position: relative;
+  display: inline-block;
+}
+.avatar-frame::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  z-index: -1;
+  border-radius: 2.6rem;
+  background: linear-gradient(135deg, var(--pink-pale), var(--peach-pale) 60%, var(--mint-pale));
+  transform: rotate(-3deg);
+}
+.avatar-img {
+  border-radius: 2rem;
+  border: 5px solid var(--paper);
+  box-shadow: var(--shadow);
+  object-fit: cover;
+}
+.sparkle {
+  position: absolute;
+  color: var(--yolk);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08));
+  animation: twinkle 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+.sparkle-pink {
+  color: var(--pink);
+}
+.sparkle-mint {
+  color: var(--mint);
+}
+
+/* ---------- アニメーション ---------- */
 @keyframes breathe {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translateY(0) rotate(0deg);
   }
   50% {
-    transform: translateY(-4px);
+    transform: translateY(-5px) rotate(0.6deg);
   }
 }
 .breathe {
   animation: breathe 3.2s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.75) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(15deg);
+  }
+}
+@keyframes wobble-in {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  60% {
+    transform: translateY(-2px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.wobble-in {
+  animation: wobble-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 @keyframes blink {
   0%,
@@ -187,7 +401,12 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .breathe,
-  .blink {
+  .blink,
+  .sparkle,
+  .wobble-in {
     animation: none;
+  }
+  .sparkle {
+    opacity: 0.8;
   }
 }

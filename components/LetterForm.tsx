@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { CALL_NAMES, type CallName } from "@/lib/types";
 import { LETTER_LIMITS } from "@/lib/state";
+import { Icon } from "./Icon";
 
 type Status = { kind: "idle" } | { kind: "sending" } | { kind: "sent" } | { kind: "error"; message: string };
 
@@ -31,7 +32,7 @@ export function LetterForm() {
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-3">
+    <form onSubmit={submit} className="card p-5 sm:p-6 flex flex-col gap-3">
       <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3">
         <label className="flex flex-col gap-1 text-sm">
           なまえ
@@ -54,9 +55,15 @@ export function LetterForm() {
       </label>
       <div className="flex flex-wrap items-center gap-4">
         <button className="btn" type="submit" disabled={status.kind === "sending"}>
+          <Icon name="mail" size={16} />
           {status.kind === "sending" ? "ポストに入れてる…" : "ポストに入れる"}
         </button>
-        {status.kind === "sent" && <p className="text-sm text-mint font-bold">入った。次のデプロイで読むね（最大20分）</p>}
+        {status.kind === "sent" && (
+          <p className="tag tag-mint text-sm wobble-in">
+            <Icon name="heart" size={12} />
+            入った。次のデプロイで読むね（最大20分）
+          </p>
+        )}
         {status.kind === "error" && <p className="text-sm text-pink-deep">{status.message}</p>}
       </div>
     </form>
